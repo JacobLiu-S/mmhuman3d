@@ -93,8 +93,8 @@ class HybrIKHead(BaseModule):
         self.root_idx_smpl = 0
 
         # mean shape
-        init_shape = np.load(smpl_mean_params)
-        self.register_buffer('init_shape', torch.Tensor(init_shape).float())
+        init_shape = np.load(smpl_mean_params)['shape'][:].astype('float32')
+        self.register_buffer('init_shape', torch.Tensor(init_shape).unsqueeze(0))
 
         self.avg_pool = nn.AdaptiveAvgPool2d(1)
         self.fc1 = nn.Linear(self.feature_channel, 1024)

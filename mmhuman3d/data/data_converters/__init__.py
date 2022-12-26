@@ -31,6 +31,7 @@ from .stirling import StirlingConverter
 from .surreal import SurrealConverter
 from .up3d import Up3dConverter
 from .vibe import VibeConverter
+from .synbody import SynbodyConverter
 
 __all__ = [
     'build_data_converter', 'AgoraConverter', 'MpiiConverter', 'H36mConverter',
@@ -43,5 +44,5 @@ __all__ = [
     'SurrealConverter', 'InstaVibeConverter', 'SpinConverter', 'VibeConverter',
     'HuMManConverter', 'FFHQFlameConverter', 'ExposeCuratedFitsConverter',
     'ExposeSPINSMPLXConverter', 'FreihandConverter', 'StirlingConverter',
-    'EHFConverter'
+    'EHFConverter', 'SynbodyConverter'
 ]

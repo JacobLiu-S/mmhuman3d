@@ -45,7 +45,7 @@ class LoadImageFromFile(object):
             filename = osp.join(results['img_prefix'], results['image_path'])
         else:
             filename = results['image_path']
-
+        
         if filename.endswith('smc'):
             assert 'image_id' in results, 'Load image from .smc, ' \
                                           'but image_id is not provided.'
@@ -57,8 +57,21 @@ class LoadImageFromFile(object):
             img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)  # BGR is used
             del smc_reader
         else:
-            img_bytes = self.file_client.get(filename)
-            img = mmcv.imfrombytes(img_bytes, flag=self.color_type)
+            if self.file_client_args['backend'] == 'petrel':
+                # filename = '/'.join(filename.split('/')[1:])
+                # filename = 's3://mmhuman3d_datasets/' + filename[5:]
+                # print(filename)
+                # exit()
+                try:
+                    img_bytes = self.file_client.get(filename)
+                    # print(True)
+                except TypeError:
+                    print(filename)
+                    exit()
+                img = mmcv.imfrombytes(img_bytes, flag=self.color_type)
+            elif self.file_client_args['backend'] == 'disk':
+                img_bytes = self.file_client.get(filename)
+                img = mmcv.imfrombytes(img_bytes, flag=self.color_type)
 
         if self.to_float32:
             img = img.astype(np.float32)

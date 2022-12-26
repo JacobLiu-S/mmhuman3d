@@ -19,7 +19,6 @@ from mmhuman3d.core.conventions.keypoints_mapping import (
     instavariety,
     lsp,
     mano,
-    mediapipe,
     mpi_inf_3dhp,
     mpii,
     openpose,
@@ -30,6 +29,7 @@ from mmhuman3d.core.conventions.keypoints_mapping import (
     smplx,
     spin_smplx,
     star,
+    synbody,
 )
 
 KEYPOINTS_FACTORY = {
@@ -67,14 +67,7 @@ KEYPOINTS_FACTORY = {
     'face3d': face3d.FACE3D_IND,
     'spin_smplx': spin_smplx.SPIN_SMPLX_KEYPOINTS,
     'mano': mano.MANO_KEYPOINTS,
-    'mano_left': mano.MANO_LEFT_KEYPOINTS,
-    'mano_right': mano.MANO_RIGHT_KEYPOINTS,
-    'mano_hands': mano.MANO_HANDS_KEYPOINTS,
-    'mano_left_reorder': mano.MANO_LEFT_REORDER_KEYPOINTS,
-    'mano_right_reorder': mano.MANO_RIGHT_REORDER_KEYPOINTS,
-    'mano_hands_reorder': mano.MANO_HANDS_REORDER_KEYPOINTS,
-    'mediapipe_whole_body': mediapipe.MP_WHOLE_BODY_KEYPOINTS,
-    'mediapipe_body': mediapipe.MP_BODY_KEYPOINTS,
+    'synbody':synbody.SYNBODY_SMPL_45_KEYPOINTS,
 }
 
 __KEYPOINTS_MAPPING_CACHE__ = defaultdict(dict)

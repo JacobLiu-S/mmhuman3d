@@ -105,8 +105,11 @@ class HumanImageDataset(BaseDataset, metaclass=ABCMeta):
             use_human_data = True
         else:
             use_human_data = False
+        # print(f'use human data or not?? {use_human_data}')
         if use_human_data:
             self.human_data = HumanData.fromfile(self.ann_file)
+            # print('heiheihe')
+            # print(self.human_data.keys())
 
             if self.human_data.check_keypoints_compressed():
                 self.human_data.decompress_keypoints()
@@ -168,7 +171,12 @@ class HumanImageDataset(BaseDataset, metaclass=ABCMeta):
         info = {}
         info['img_prefix'] = None
         image_path = self.human_data['image_path'][idx]
-        info['image_path'] = os.path.join(self.data_prefix, 'datasets',
+        # info['image_path'] = os.path.join(self.data_prefix, 'datasets',
+        #                                   self.dataset_name, image_path)
+        if self.dataset_name == 'synbody':
+            info['image_path'] = os.path.join(self.data_prefix, 'datasets', image_path)
+        else:
+            info['image_path'] = os.path.join(self.data_prefix, 'datasets',
                                           self.dataset_name, image_path)
         if image_path.endswith('smc'):
             device, device_id, frame_id = self.human_data['image_id'][idx]
@@ -323,7 +331,7 @@ class HumanImageDataset(BaseDataset, metaclass=ABCMeta):
 
     def _parse_result(self, res, mode='keypoint', body_part=None):
         """Parse results."""
-
+        print(f'****{mode}')
         if mode == 'vertice':
             # gt
             gt_beta, gt_pose, gt_global_orient, gender = [], [], [], []
@@ -368,7 +376,8 @@ class HumanImageDataset(BaseDataset, metaclass=ABCMeta):
             # (B, 17, 3)
             pred_keypoints3d = np.array(pred_keypoints3d)
 
-            if self.dataset_name == 'pw3d':
+            # if self.dataset_name == 'pw3d':
+            if self.dataset_name in ['pw3d', 'agora']:
                 betas = []
                 body_pose = []
                 global_orient = []
@@ -393,7 +402,7 @@ class HumanImageDataset(BaseDataset, metaclass=ABCMeta):
                     gender=gender)
                 gt_keypoints3d = gt_output['joints'].detach().cpu().numpy()
                 gt_keypoints3d_mask = np.ones((len(pred_keypoints3d), 24))
-            elif self.dataset_name in ['h36m', 'humman']:
+            elif self.dataset_name in ['h36m', 'humman', 'synbody']:
                 gt_keypoints3d = self.human_data['keypoints3d'][:, :, :3]
                 gt_keypoints3d_mask = np.ones((len(pred_keypoints3d), 17))
 

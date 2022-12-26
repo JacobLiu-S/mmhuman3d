@@ -598,7 +598,7 @@ class CameraPriorLoss(nn.Module):
         loss_weight = (
             loss_weight_override
             if loss_weight_override is not None else self.loss_weight)
-
+        
         camera_prior_loss = torch.exp(-cameras[:, 0] * self.scale)
         camera_prior_loss = torch.pow(camera_prior_loss, 2) * loss_weight
 

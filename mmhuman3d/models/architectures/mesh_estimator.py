@@ -415,6 +415,18 @@ class BodyModelEstimator(BaseArchitecture, metaclass=ABCMeta):
         left_hip_idx = get_keypoint_idx('left_hip_extra', self.convention)
         gt_pelvis = (gt_keypoints3d[:, right_hip_idx, :] +
                      gt_keypoints3d[:, left_hip_idx, :]) / 2
+
+        # for agora and synbody
+        right_hip_idx1 = get_keypoint_idx('right_hip', self.convention)
+        left_hip_idx1 = get_keypoint_idx('left_hip', self.convention)
+        gt_pelvis1 = (gt_keypoints3d[:, right_hip_idx1, :] +
+                     gt_keypoints3d[:, left_hip_idx1, :]) / 2
+        
+        gt_pelvis = gt_pelvis + gt_pelvis1
+        # print(gt_pelvis)
+        # import IPython
+        # IPython.embed()
+        # exit()
         pred_pelvis = (pred_keypoints3d[:, right_hip_idx, :] +
                        pred_keypoints3d[:, left_hip_idx, :]) / 2
 
