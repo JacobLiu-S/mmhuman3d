@@ -57,6 +57,8 @@ def parse_args():
     if 'LOCAL_RANK' not in os.environ:
         os.environ['LOCAL_RANK'] = str(args.local_rank)
 
+    # if 'RANK' not in os.environ:
+    #     os.environ['RANK'] = str(args.local_rank)
     return args
 
 
@@ -86,6 +88,8 @@ def main():
         cfg.gpu_ids = range(1) if args.gpus is None else range(args.gpus)
 
     # init distributed env first, since logger depends on the dist info.
+    print('init_starting')
+    # import 
     if args.launcher == 'none':
         distributed = False
     else:
@@ -93,7 +97,7 @@ def main():
         init_dist(args.launcher, **cfg.dist_params)
         _, world_size = get_dist_info()
         cfg.gpu_ids = range(world_size)
-
+    print('init finished ********')
     # create work_dir
     mmcv.mkdir_or_exist(osp.abspath(cfg.work_dir))
     # dump config

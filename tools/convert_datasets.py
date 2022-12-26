@@ -5,7 +5,7 @@ from mmhuman3d.data.data_converters import build_data_converter
 
 DATASET_CONFIGS = dict(
     agora=dict(
-        type='AgoraConverter', modes=['train', 'validation'], fit='smplx'),
+        type='AgoraConverter', modes=['train', 'validation'], fit='smpl'),
     amass=dict(type='AmassConverter', prefix='AMASS_file'),
     coco=dict(type='CocoConverter'),
     coco_wholebody=dict(
@@ -22,7 +22,7 @@ DATASET_CONFIGS = dict(
         prefix='h36m'),
     h36m_p2=dict(
         type='H36mConverter', modes=['valid'], protocol=2, prefix='h36m'),
-    mpi_inf_3dhp=dict(type='MpiInf3dhpConverter', modes=['train', 'test']),
+    mpi_inf_3dhp=dict(type='MpiInf3dhpConverter', modes=['train', 'test'], extract_img=True),
     penn_action=dict(type='PennActionConverter'),
     lsp_original=dict(type='LspConverter', modes=['train'], prefix='lsp'),
     lsp_dataset=dict(type='LspConverter', modes=['test']),
@@ -57,6 +57,7 @@ DATASET_CONFIGS = dict(
     gta_human=dict(type='GTAHumanConverter', prefix='gta_human'),
     humman=dict(
         type='HuMManConverter', modes=['train', 'test'], prefix='humman'),
+    synbody=dict(type='SynbodyConverter', modes=['train'], prefix='synbody'),
 )
 
 
@@ -100,6 +101,7 @@ def main():
         prefix = cfg.pop('prefix', dataset)
         input_path = os.path.join(args.root_path, prefix)
         data_converter = build_data_converter(cfg)
+        print(data_converter)
         data_converter.convert(input_path, args.output_path)
         print(f'[{dataset}] Converting finished!')
 
