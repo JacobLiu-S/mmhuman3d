@@ -1,4 +1,5 @@
 from .adversarial_dataset import AdversarialDataset
+from .dg_adversarial_dataset import DGAdversarialDataset
 from .base_dataset import BaseDataset
 from .builder import DATASETS, PIPELINES, build_dataloader, build_dataset
 from .dataset_wrappers import ConcatDataset, RepeatDataset
@@ -28,4 +29,5 @@ __all__ = [
     'MeshDataset',
     'HumanVideoDataset',
     'HybrIKHumanImageDataset',
+    'DGAdversarialDataset'
 ]
