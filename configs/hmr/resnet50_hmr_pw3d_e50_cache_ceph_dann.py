@@ -95,6 +95,20 @@ adv_data_keys = [
     'smpl_body_pose', 'smpl_global_orient', 'smpl_betas', 'smpl_transl'
 ]
 train_adv_pipeline = [dict(type='Collect', keys=adv_data_keys, meta_keys=[])]
+train_syn_pipeline = [
+    dict(type='LoadImageFromFile', file_client_args=file_client_args),
+    dict(type='RandomChannelNoise', noise_factor=0.4),
+    dict(type='RandomHorizontalFlip', flip_prob=0.5, convention='smpl_54'),
+    dict(type='GetRandomScaleRotation', rot_factor=30, scale_factor=0.25),
+    dict(type='MeshAffine', img_res=224),
+    dict(type='Normalize', **img_norm_cfg),
+    dict(type='ImageToTensor', keys=['img']),
+    dict(type='ToTensor', keys=data_keys),
+    dict(
+        type='Collect',
+        keys=['img'],
+        meta_keys=['image_path', 'center', 'scale', 'rotation'])
+]
 test_pipeline = [
     dict(type='LoadImageFromFile', file_client_args=file_client_args),
     dict(type='GetRandomScaleRotation', rot_factor=0, scale_factor=0),
@@ -125,7 +139,8 @@ cache_files = {
     'lspet': 'data/cache/lspet_train_smpl_54.npz',
     'mpii': 'data/cache/mpii_train_smpl_54.npz',
     'coco': 'data/cache/coco_2014_train_smpl_54.npz',
-    'gta': 'data/cache/gta_human_4x_smpl_54.npz'
+    'gta': 'data/cache/gta_human_1x_smpl_54.npz',
+    'gta_part': 'data/cache/gta_part_smpl_54.npz'
 }
 data = dict(
     samples_per_gpu=32,
@@ -183,8 +198,16 @@ data = dict(
                     convention='smpl_54',
                     cache_data_path=cache_files['coco'],
                     ann_file='coco_2014_train.npz'),
+                dict(
+                    type=dataset_type,
+                    dataset_name='gta',
+                    data_prefix='data',
+                    pipeline=train_pipeline,
+                    convention='smpl_54',
+                    cache_data_path=cache_files['gta'],
+                    ann_file='gta_human_1x.npz')
             ],
-            partition=[0.35, 0.15, 0.1, 0.10, 0.10, 0.2],
+            partition=[0.35, 0.15, 0.1, 0.10, 0.10, 0.2, 1],
         ),
         adv_dataset=dict(
             type='MeshDataset',
@@ -193,13 +216,13 @@ data = dict(
             pipeline=train_adv_pipeline,
             ann_file='cmu_mosh.npz'),
         syn_dataset=dict(
-                    type=dataset_type,
-                    dataset_name='gta',
-                    data_prefix='data',
-                    pipeline=train_pipeline,
-                    convention='smpl_54',
-                    cache_data_path=cache_files['gta'],
-                    ann_file='gta_human_4x.npz')),
+            type=dataset_type,
+            dataset_name='gta',
+            data_prefix='data',
+            pipeline=train_syn_pipeline,
+            convention='smpl_54',
+            cache_data_path=cache_files['gta_part'],
+            ann_file='gta_part.npz')),
     test=dict(
         type=dataset_type,
         body_model=dict(
