@@ -3,6 +3,7 @@ from typing import Optional, Tuple, Union
 
 import torch
 import torch.nn.functional as F
+import numpy as np
 
 
 import mmhuman3d.core.visualization.visualize_smpl as visualize_smpl
@@ -130,7 +131,13 @@ class BodyModelEstimator(BaseArchitecture, metaclass=ABCMeta):
         set_requires_grad(self.body_model_train, False)
         set_requires_grad(self.body_model_test, False)
 
-    def train_step(self, data_batch, optimizer, alpha, **kwargs):
+    def set_epoch(self, epoch, max_epochs):
+        self.domain_classifier.epoch = epoch
+    
+    def set_iter(self, num_iter, max_iters):
+        self.domain_classifier.num_iter = num_iter
+
+    def train_step(self, data_batch, optimizer, **kwargs):
         """Train step function.
 
         In this function, the detector will finish the train step following
@@ -164,6 +171,14 @@ class BodyModelEstimator(BaseArchitecture, metaclass=ABCMeta):
         batch_size = data_batch['img'].shape[0]
 
         # for domain classfier
+        epoch = self.domain_classifier.epoch
+        max_epochs = self.domain_classifier.max_epochs
+        num_iter = self.domain_classifier.num_iter
+        max_iters = self.domain_classifier.max_iters
+        len_dataloader = max_iters // max_epochs
+        p = float(num_iter + epoch * len_dataloader) / max_epoch / len_dataloader
+        alpha = 2. / (1. + np.exp(-10 * p)) - 1
+
         domain_output = self.domain_classifier(features, alpha=alpha)
         domain_label = torch.zeros(batch_size).long().cuda()
 

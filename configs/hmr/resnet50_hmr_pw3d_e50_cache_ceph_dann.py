@@ -22,6 +22,8 @@ log_config = dict(
 
 img_res = 224
 
+custom_hooks = [dict(type='SetEpochInfoHook'), dict(type='SetIterInfoHook')]
+
 # model settings
 model = dict(
     type='DGImageBodyModelEstimator',
