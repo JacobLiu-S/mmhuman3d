@@ -16,14 +16,12 @@ class DGAdversarialDataset(Dataset):
         adv_dataset (:obj:`Dataset`): Dataset for adversarial learning.
     """
 
-    def __init__(self, train_dataset: Dataset, adv_dataset: Dataset, syn_dataset: Dataset):
+    def __init__(self, train_dataset: Dataset, adv_dataset: Dataset):
         super().__init__()
         self.train_dataset = build_dataset(train_dataset)
         self.adv_dataset = build_dataset(adv_dataset)
-        self.syn_dataset = build_dataset(syn_dataset)
         self.num_train_data = len(self.train_dataset)
         self.num_adv_data = len(self.adv_dataset)
-        self.num_syn_data = len(self.syn_dataset)
 
     def __len__(self):
         """Get the size of the dataset."""
@@ -38,10 +36,6 @@ class DGAdversarialDataset(Dataset):
         data = self.train_dataset[idx]
         adv_idx = np.random.randint(low=0, high=self.num_adv_data, dtype=int)
         adv_data = self.adv_dataset[adv_idx]
-        syn_idx = np.random.randint(low=0, high=self.num_syn_data, dtype=int)
-        syn_data = self.syn_dataset[syn_idx]
         for k, v in adv_data.items():
             data['adv_' + k] = v
-        for k, v in syn_data.items():
-            data['syn_' + k] = v
         return data

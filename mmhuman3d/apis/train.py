@@ -13,6 +13,7 @@ from mmcv.runner import (
 
 from mmhuman3d.core.distributed_wrapper import DistributedDataParallelWrapper
 from mmhuman3d.core.evaluation import DistEvalHook, EvalHook
+from mmhuman3d.core.train import SetEpochInfoHook, SetIterInfoHook
 from mmhuman3d.core.optimizer import build_optimizers
 from mmhuman3d.data.datasets import build_dataloader, build_dataset
 from mmhuman3d.utils.logger import get_root_logger
@@ -132,6 +133,10 @@ def train_model(model,
             optimizer_config = cfg.optimizer_config
 
     # register hooks
+    get_epoch_iter = cfg.get('get_epoch_iter', False)
+    if get_epoch_iter:
+        runner.register_hook(SetEpochInfoHook())
+        runner.register_hook(SetIterInfoHook())
     runner.register_training_hooks(
         cfg.lr_config,
         optimizer_config,

@@ -133,9 +133,25 @@ class BodyModelEstimator(BaseArchitecture, metaclass=ABCMeta):
 
     def set_epoch(self, epoch, max_epochs):
         self.domain_classifier.epoch = epoch
+        self.domain_classifier.max_epochs = max_epochs
     
     def set_iter(self, num_iter, max_iters):
         self.domain_classifier.num_iter = num_iter
+        self.domain_classifier.max_iters = max_iters
+
+    def split_real_syn(self, data_batch, features):
+        real_idx = []
+        syn_idx = []
+        for i in range(len(data_batch['img_metas'])):
+            meta_dict = data_batch['img_metas'][i]
+            if meta_dict['dataset_name'] == 'gta':
+                syn_idx.append(i)
+            else:
+                real_idx.append(i)
+        real_features = features[0][real_idx]
+        syn_features = features[0][syn_idx]
+        return real_features, syn_features
+
 
     def train_step(self, data_batch, optimizer, **kwargs):
         """Train step function.
@@ -168,30 +184,26 @@ class BodyModelEstimator(BaseArchitecture, metaclass=ABCMeta):
 
         predictions = self.head(features)
         targets = self.prepare_targets(data_batch)
-        batch_size = data_batch['img'].shape[0]
+        # batch_size = data_batch['img'].shape[0]
 
         # for domain classfier
+        real_features, syn_features = self.split_real_syn(data_batch, features)
+
         epoch = self.domain_classifier.epoch
         max_epochs = self.domain_classifier.max_epochs
         num_iter = self.domain_classifier.num_iter
         max_iters = self.domain_classifier.max_iters
         len_dataloader = max_iters // max_epochs
-        p = float(num_iter + epoch * len_dataloader) / max_epoch / len_dataloader
+        p = float(num_iter + epoch * len_dataloader) / max_epochs / len_dataloader
         alpha = 2. / (1. + np.exp(-10 * p)) - 1
 
-        domain_output = self.domain_classifier(features, alpha=alpha)
-        domain_label = torch.zeros(batch_size).long().cuda()
+        domain_output = self.domain_classifier(real_features, alpha=alpha)
+        domain_label = torch.zeros(len(real_features)).long().cuda()
 
         err_s_domain = self.loss_domain(domain_output, domain_label)
 
-        if self.backbone is not None:
-            img_syn = data_batch['syn_img']
-            features_syn = self.backbone(img_syn)
-        else:
-            features_syn = data_batch_syn['features']
-
-        domain_output_syn = self.domain_classifier(features_syn, alpha=alpha)
-        domain_label_syn = torch.ones(batch_size).long().cuda()
+        domain_output_syn = self.domain_classifier(syn_features, alpha=alpha)
+        domain_label_syn = torch.ones(len(syn_features)).long().cuda()
         err_t_domain = self.loss_domain(domain_output_syn, domain_label_syn)
 
         # optimize discriminator (if have)
@@ -212,8 +224,9 @@ class BodyModelEstimator(BaseArchitecture, metaclass=ABCMeta):
             optimizer[key].zero_grad()
 
         # combine domain classifier loss and regression loss
-        # import IPython; IPython.embed()
-        loss += 0.1*(err_s_domain + err_t_domain)
+        if epoch <= 20:
+            cls_weight = 0.1 * epoch / 20 
+        loss += cls_weight * (err_s_domain + err_t_domain)
         loss.backward()
         for key in optimizer.keys():
             optimizer[key].step()

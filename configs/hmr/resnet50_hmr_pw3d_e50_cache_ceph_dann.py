@@ -22,7 +22,8 @@ log_config = dict(
 
 img_res = 224
 
-custom_hooks = [dict(type='SetEpochInfoHook'), dict(type='SetIterInfoHook')]
+# add epoch and iter info hooks in training
+get_epoch_iter = True
 
 # model settings
 model = dict(
@@ -91,26 +92,13 @@ train_pipeline = [
     dict(
         type='Collect',
         keys=['img', *data_keys],
-        meta_keys=['image_path', 'center', 'scale', 'rotation'])
+        meta_keys=['image_path', 'center', 'scale', 'rotation', 'dataset_name'])
 ]
 adv_data_keys = [
     'smpl_body_pose', 'smpl_global_orient', 'smpl_betas', 'smpl_transl'
 ]
 train_adv_pipeline = [dict(type='Collect', keys=adv_data_keys, meta_keys=[])]
-train_syn_pipeline = [
-    dict(type='LoadImageFromFile', file_client_args=file_client_args),
-    dict(type='RandomChannelNoise', noise_factor=0.4),
-    dict(type='RandomHorizontalFlip', flip_prob=0.5, convention='smpl_54'),
-    dict(type='GetRandomScaleRotation', rot_factor=30, scale_factor=0.25),
-    dict(type='MeshAffine', img_res=224),
-    dict(type='Normalize', **img_norm_cfg),
-    dict(type='ImageToTensor', keys=['img']),
-    dict(type='ToTensor', keys=data_keys),
-    dict(
-        type='Collect',
-        keys=['img'],
-        meta_keys=['image_path', 'center', 'scale', 'rotation'])
-]
+
 test_pipeline = [
     dict(type='LoadImageFromFile', file_client_args=file_client_args),
     dict(type='GetRandomScaleRotation', rot_factor=0, scale_factor=0),
@@ -216,15 +204,7 @@ data = dict(
             dataset_name='cmu_mosh',
             data_prefix='data',
             pipeline=train_adv_pipeline,
-            ann_file='cmu_mosh.npz'),
-        syn_dataset=dict(
-            type=dataset_type,
-            dataset_name='gta',
-            data_prefix='data',
-            pipeline=train_syn_pipeline,
-            convention='smpl_54',
-            cache_data_path=cache_files['gta_part'],
-            ann_file='gta_part.npz')),
+            ann_file='cmu_mosh.npz')),
     test=dict(
         type=dataset_type,
         body_model=dict(
