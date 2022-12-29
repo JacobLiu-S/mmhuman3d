@@ -226,6 +226,8 @@ class BodyModelEstimator(BaseArchitecture, metaclass=ABCMeta):
         # combine domain classifier loss and regression loss
         if epoch <= 20:
             cls_weight = 0.1 * epoch / 20 
+        else:
+            cls_weight = 0.1
         loss += cls_weight * (err_s_domain + err_t_domain)
         loss.backward()
         for key in optimizer.keys():
