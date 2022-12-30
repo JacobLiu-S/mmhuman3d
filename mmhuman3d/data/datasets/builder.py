@@ -107,6 +107,7 @@ def build_dataloader(dataset: Dataset,
         shuffle=shuffle,
         worker_init_fn=init_fn,
         persistent_workers=persistent_workers,
+        drop_last=True,
         **kwargs)
 
     return data_loader
