@@ -52,6 +52,7 @@ def build_dataloader(dataset: Dataset,
                      round_up: Optional[bool] = True,
                      seed: Optional[Union[int, None]] = None,
                      persistent_workers: Optional[bool] = True,
+                     drop_last=True,
                      **kwargs):
     """Build PyTorch DataLoader.
 
@@ -107,7 +108,7 @@ def build_dataloader(dataset: Dataset,
         shuffle=shuffle,
         worker_init_fn=init_fn,
         persistent_workers=persistent_workers,
-        drop_last=True,
+        drop_last=drop_last,
         **kwargs)
 
     return data_loader
