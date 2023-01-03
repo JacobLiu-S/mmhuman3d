@@ -213,7 +213,14 @@ class BodyModelEstimator(BaseArchitecture, metaclass=ABCMeta):
         if self.registration is not None:
             targets = self.run_registration(predictions, targets)
 
+        # combine domain classifier loss and regression loss
         losses = self.compute_losses(predictions, targets)
+        if epoch <= 50:
+            cls_weight = 0.1 * epoch / 50
+        else:
+            cls_weight = 0.1
+        losses['err_s_domain'] = err_s_domain * cls_weight
+        losses['err_t_domain'] = err_t_domain * cls_weight
         # optimizer generator part
         if self.disc is not None:
             adv_loss = self.optimize_generator(predictions)
@@ -222,13 +229,7 @@ class BodyModelEstimator(BaseArchitecture, metaclass=ABCMeta):
         loss, log_vars = self._parse_losses(losses)
         for key in optimizer.keys():
             optimizer[key].zero_grad()
-
-        # combine domain classifier loss and regression loss
-        if epoch <= 50:
-            cls_weight = 0.1 * epoch / 50
-        else:
-            cls_weight = 0.1
-        loss += cls_weight * (err_s_domain + err_t_domain)
+        # import IPython; IPython.embed()
         loss.backward()
         for key in optimizer.keys():
             optimizer[key].step()
