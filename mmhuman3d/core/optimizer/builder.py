@@ -46,7 +46,8 @@ def build_optimizers(model, cfgs):
         for key, cfg in cfgs.items():
             cfg_ = cfg.copy()
             module = getattr(model, key)
-            optimizers[key] = build_optimizer(module, cfg_)
+            if module != None:
+                optimizers[key] = build_optimizer(module, cfg_)
         return optimizers
 
     return build_optimizer(model, cfgs)

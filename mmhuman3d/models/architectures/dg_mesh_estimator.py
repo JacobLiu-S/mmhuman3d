@@ -102,7 +102,10 @@ class BodyModelEstimator(BaseArchitecture, metaclass=ABCMeta):
         self.head = build_head(head)
         domain_classifier_config = dict(type='DomainClassifier', feat_dim=2048)
         self.domain_classifier = build_head(domain_classifier_config)
-        self.disc = build_discriminator(disc)
+        if disc != None:
+            self.disc = build_discriminator(disc)
+        else:
+            self.disc = None
 
         self.body_model_train = build_body_model(body_model_train)
         self.body_model_test = build_body_model(body_model_test)
