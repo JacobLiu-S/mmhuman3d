@@ -133,8 +133,8 @@ cache_files = {
     'gta_part': f'data/{cache}/gta_part_smpl_54.npz'
 }
 data = dict(
-    samples_per_gpu=32,
-    workers_per_gpu=2,
+    samples_per_gpu=128,
+    workers_per_gpu=4,
     train=dict(
         type='DGAdversarialDataset',
         train_dataset=dict(

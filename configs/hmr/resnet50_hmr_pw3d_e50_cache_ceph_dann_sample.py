@@ -134,7 +134,7 @@ cache_files = {
 }
 data = dict(
     samples_per_gpu=32,
-    workers_per_gpu=8,
+    workers_per_gpu=2,
     train=dict(
         type='DGAdversarialDataset',
         train_dataset=dict(
